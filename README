@@ -1,13 +1,88 @@
 SearchModel
 ===========
 
-Introduction goes here.
+The plugin helps to build search forms in your rails application. It allows to 
+have complex search parameters, restful and easily testable controller and clean
+and standard forms in the view.
 
+It expects that your model has a named scope for every search parameter that 
+you'd like to have. I've figured that using named scopes is convenient for 
+search parameters cause it allows you to encapsulate db specific stuff:
 
-Example
-=======
+class Post < ActiveRecord::Base
+  has_and_belongs_to_many :categories
+  
+  named_scope :by_categories, lambda { |categories| 
+    { 
+      :include => :categories,
+      :conditions => ['categories.id IN (?)', categories]
+    }
+  }
+  
+  named_scope :by_keyword, lambda { |value| 
+    {
+      :conditions => ['(title like ? OR body like ?)', "%#{value}%", "%#{value}%"]  
+    }
+  }
+end
 
-Example goes here.
+In this example by_categories named scope allows to search by ids of categories 
+so you could have a list of categories as a bunch of check boxes in your search 
+form.
 
+To make a search form restful I usually create a separate controller for it with
+new and create actions:
 
-Copyright (c) 2008 [name of plugin creator], released under the MIT license
+The new action displays a search form and the create action (after the user 
+submits the form) displays the same form with the values entered and the search
+results.
+
+To make the controller easily testable the plugin provides a SearchModel class
+that encapsulates all search related logic and which you can subclass to create
+your own search class:
+
+class PostSearch < SearchModel
+  search_attributes :categories, :keyword
+end
+
+The search_attribute method is used to define which search parameters you would 
+like to have. There needs to be a named scope for each parameter in the model.
+
+SearchModel provides a constructor that supports mass assignment and creates
+attributes for every search parameter. That means that it can be used like an
+ActiveRecord object in the controller:
+
+class PostSearchesController < ApplicationController
+  def new
+    @search = PostSearch.new
+  end
+  
+  def create
+    @search = PostSearch.new(params[:search])
+    @posts = @search.results
+  end
+end
+
+The results method returns records that match the search criteria.
+
+In the view you just build a form as you would do for any ActiveRecord instance:
+
+<% form_for :search, @search do |form| -%>
+  <p>
+    <%= form.label :keyword %>
+    <%= form.text_field :keyword %>
+  </p>  
+  ....
+<% end -%>
+
+SearchModel gets all parameters from the request and generated a query using the
+named scopes for the parameters that are not blank. All logic is in the search 
+object which makes the controller skinny and easily testable. The search object
+has attributes for every search parameter which makes it easy to display the
+search form with the parameters entered on the search results page. The fact 
+that it uses named scope for search parameters allows to have any kind of search
+parameters - just define a named scope for it. It supports search parameters which
+are arrays (like a group of check boxes) or hashes (like complex attributes which
+consist of several attributes).
+
+Copyright (c) 2008 Eugene Bolshakov, released under the MIT license
