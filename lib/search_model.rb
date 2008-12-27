@@ -13,6 +13,10 @@ class SearchModel
     end
   end
   
+  def blank?
+    scopes.empty?
+  end
+  
   def results
     search_scope = model_class.scoped({})
     scopes.each do |scope, param|

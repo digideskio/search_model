@@ -58,5 +58,13 @@ class SearchModelTest < ActiveSupport::TestCase
     assert_equal Post.by_keyword('Test').by_author('Me').proxy_options,
       search_scope(:keyword => 'Test', :author => 'Me')
   end  
+  
+  test 'should be blank when no parameters are entered' do
+    assert PostSearch.new.blank?  
+  end
+  
+  test 'should not be blank when at least one parameter is entered' do
+    assert !PostSearch.new(:keyword => 'Test').blank?
+  end
  
 end
