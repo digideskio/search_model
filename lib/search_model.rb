@@ -1,14 +1,15 @@
 class SearchModel
-  @@search_attributes = []
-  
+  @search_attrs = []
+  class << self; attr_accessor :search_attrs; end
+ 
   def self.search_attributes(*attributes)
-    @@search_attributes = attributes.collect(&:to_s)
-    attr_accessor *@@search_attributes
+    @search_attrs = attributes.collect(&:to_s)
+    attr_accessor *@search_attrs
   end
   
   def initialize(params = nil)
     params = (params || {}).stringify_keys
-    @@search_attributes.each do |attr|
+    self.class.search_attrs.each do |attr|
       send("#{attr}=", params[attr])
     end
   end
@@ -33,7 +34,7 @@ class SearchModel
     
     def scopes
       returning [] do |scopes|
-        @@search_attributes.each do |f|
+        self.class.search_attrs.each do |f|
           value = send(f)
           if set?(value) 
             scopes << ["by_#{f}", value]           
