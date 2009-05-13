@@ -25,6 +25,15 @@ class SearchModelTest < ActiveSupport::TestCase
       assert_equal 'foo', search.send(attribute)
     end      
   end
+
+  test 'should correctly overwrite attributes on mass assignment' do
+    search = PostSearch.new
+    search.attributes = {:keyword => 'foo'}
+    assert_equal 'foo', search.keyword
+    search.attributes = {:author => 'me'}
+    assert_equal 'me', search.author
+    assert_equal 'foo', search.keyword
+  end
   
   test 'should ignore blank string search parameters' do
     assert search_scope(:keyword => '').empty?  

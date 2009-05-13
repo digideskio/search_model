@@ -14,7 +14,7 @@ class SearchModel
   def attributes=(params)
     params = (params || {}).stringify_keys
     self.class.search_attrs.each do |attr|
-      send("#{attr}=", params[attr])
+      send("#{attr}=", params[attr]) if params.has_key?(attr)
     end
   end
   
