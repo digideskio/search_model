@@ -8,6 +8,10 @@ class SearchModel
   end
   
   def initialize(params = nil)
+    self.attributes = params if params
+  end
+
+  def attributes=(params)
     params = (params || {}).stringify_keys
     self.class.search_attrs.each do |attr|
       send("#{attr}=", params[attr])
