@@ -4,7 +4,7 @@ require 'active_support'
 require 'active_support/test_case'
 require 'active_record'
 
-ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :dbfile => ":memory:")
+ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :database => ":memory:")
 
 $stdout = StringIO.new
 

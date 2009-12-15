@@ -34,6 +34,13 @@ class SearchModelTest < ActiveSupport::TestCase
     assert_equal 'me', search.author
     assert_equal 'foo', search.keyword
   end
+
+  test 'should strip spaces leading and trailing spaces from attributes' do
+    search = PostSearch.new(:keyword => ' foo ')
+    assert_equal 'foo', search.keyword
+    search.author = ' me '
+    assert_equal 'me', search.author
+  end
   
   test 'should ignore blank string search parameters' do
     assert search_scope(:keyword => '').empty?  
